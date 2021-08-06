@@ -32,7 +32,7 @@ namespace Calculator
 
                 if (command[0] == "range")
                 {
-                    bool silent = false;
+                    bool silent = true;
                     foreach (string arg in command)
                     {
                         if (arg == "-silent")
@@ -45,7 +45,7 @@ namespace Calculator
                 }
                 else if (command[0] == "crange")
                 {
-                    bool silent = false;
+                    bool silent = true;
                     foreach (string arg in command)
                     {
                         if (arg == "-silent")
@@ -54,6 +54,18 @@ namespace Calculator
                         }
                     }
                     Crange(long.Parse(command[1]), long.Parse(command[2]), silent);
+
+                }
+                else if (command[0] == "srange")
+                {
+
+                    sRange(long.Parse(command[1]), long.Parse(command[2]));
+
+                }
+                else if (command[0] == "qrange")
+                {
+                    
+                    sRange(long.Parse(command[1]), long.Parse(command[2]), true);
 
                 }
                 else if (command[0] == "calc" || command[0] == "find" || command[0] == "calculate")
@@ -140,7 +152,7 @@ namespace Calculator
 
         static void Range(long low, long high, bool silent = false)
         {
-
+            long startTime = DateTime.Now.Ticks;
             long[] highestStep = { 0, 0 };
             long[] longestStep = { 0, 0 };
 
@@ -182,10 +194,16 @@ namespace Calculator
                     c.l();
                 }
             }
+            long endTime = DateTime.Now.Ticks;
+            long elapsedTime = startTime - endTime;
+            TimeSpan elapsedSpan = new TimeSpan(elapsedTime);
             c.l();
-            c.w("Finished ", ConsoleColor.Yellow);
+            c.w("Finished ");
             c.w((high - low).ToString(), ConsoleColor.Yellow);
             c.ww(" numbers");
+            c.w("Time elapsed ");
+            c.ww(elapsedSpan.ToString(), ConsoleColor.Yellow);
+            
 
             c.w("Longest Step Count - [ ");
             c.w(longestStep[1].ToString(), ConsoleColor.Green);
@@ -200,11 +218,12 @@ namespace Calculator
             c.ww(" as its highest number!");
 
         }
+
         static void Crange(long low, long high, bool silent = false)
         {
+            long startTime = DateTime.Now.Ticks;
             for (long i = low; i <= high; i++)
             {
-                
                 if (Conjecture.doesConverge(i))
                 {
                     if (!silent)
@@ -213,38 +232,172 @@ namespace Calculator
                         c.l();
                     }
                 }
-                
-                
-
-                
-                
-
-                
             }
+            long endTime = DateTime.Now.Ticks;
+            long elapsedTime = startTime - endTime;
+            TimeSpan elapsedSpan = new TimeSpan(elapsedTime);
             c.l();
             c.w("Finished ", ConsoleColor.Yellow);
             c.w((high - low).ToString(), ConsoleColor.Yellow);
             c.ww(" numbers");
+            c.w("Time elapsed ");
+            c.ww(elapsedSpan.ToString(), ConsoleColor.Yellow);
 
-            
         }
 
+        static void sRange(long low, long high, bool quiet = false)
+        {
+            long[] longestStep = { 0, 0 };
+            long startTime = DateTime.Now.Ticks;
+            if (quiet)
+            {
+                for (long i = low; i <= high; i++)
+                {
+                    long count = Conjecture.quietSteps(i);
+                    if (count > longestStep[0])
+                    {
+                        longestStep[0] = count;
+                        longestStep[1] = i;
+                    }
+                }
+            }
+            else
+            {
+                for (long i = low; i <= high; i++)
+                {
+                    long count = Conjecture.steps(i);
+                    if (count > longestStep[0])
+                    {
+                        longestStep[0] = count;
+                        longestStep[1] = i;
+                    }
+                }
 
-
+            }
+            long endTime = DateTime.Now.Ticks;
+            long elapsedTime = startTime - endTime;
+            TimeSpan elapsedSpan = new TimeSpan(elapsedTime);
+            c.l();
+            
+            c.w("Finished ", ConsoleColor.Yellow);
+            c.w((high - low).ToString(), ConsoleColor.Yellow);
+            c.ww(" numbers");
+            c.w("Time elapsed ");
+            c.ww(elapsedSpan.ToString(), ConsoleColor.Yellow);
+            c.w("Longest Step Count - [ ");
+            c.w(longestStep[1].ToString(), ConsoleColor.Green);
+            c.w(" ] with ");
+            c.w(longestStep[0].ToString(), ConsoleColor.Yellow);
+            c.ww(" steps!");
+        }
     }
 
     public static class Conjecture
     {
         public static HashSet<long> cache = new HashSet<long>();
+        public static Hashtable stepCache = new Hashtable();
 
-        
+        public static long steps(long input)
+        {
+            c.l();
+            c.ww(input.ToString(), ConsoleColor.Yellow);
+            long result = input;
+            long count = 0;
+            while (result > 1)
+            {
+                c.w(count.ToString(),ConsoleColor.Green);
+                c.w("[", ConsoleColor.Magenta);
+                c.w(result.ToString(), ConsoleColor.Yellow);
+                c.w("],", ConsoleColor.Magenta);
+
+                if (stepCache.ContainsKey(result))
+                {
+                    c.l();
+                    c.w("Found number ", ConsoleColor.Magenta);
+                    c.w(result.ToString(), ConsoleColor.Cyan);
+                    c.w(" in cache.  Added ", ConsoleColor.Magenta);
+                    c.w(stepCache[result].ToString(), ConsoleColor.Cyan);
+
+
+                    count += (long)stepCache[result];
+
+
+                    c.w(" for ", ConsoleColor.Magenta);
+                    c.w(count.ToString(), ConsoleColor.Yellow);
+                    c.w(" total steps", ConsoleColor.Magenta);
+                    
+                    break;
+                }
+                result = Conjecture.calc(result);
+                count++;
+                if (result < 0)
+                {
+                    c.e("Negative number " + result + " found");
+                    c.e("Likely after reaching max int of " + long.MaxValue.ToString());
+                    return 0;
+                }
+                
+            }
+
+            c.l();
+            if (!stepCache.ContainsKey(input))
+            {
+                c.w("Adding ", ConsoleColor.Magenta);
+                c.w(input.ToString(),ConsoleColor.Cyan);
+                c.w(" to cache at ",ConsoleColor.Magenta);
+                c.ww(count.ToString(), ConsoleColor.Cyan);
+                stepCache.Add(input, count);
+            }
+            return count;
+        }
+
+        public static long quietSteps(long input)
+        {
+            long result = input;
+            long count = 0;
+            while (result > 1)
+            {
+                
+
+                if (stepCache.ContainsKey(result))
+                {
+                   
+
+
+                    count += (long)stepCache[result];
+
+
+                   
+
+                    break;
+                }
+                result = Conjecture.calc(result);
+                count++;
+                if (result < 0)
+                {
+                    c.e("Negative number " + result + " found");
+                    c.e("Likely after reaching max int of " + long.MaxValue.ToString());
+                    return 0;
+                }
+
+            }
+
+            
+            if (!stepCache.ContainsKey(input))
+            {
+                stepCache.Add(input, count);
+            }
+            return count;
+        }
+
         public static bool doesConverge(long input)
         {
-            long result = 0;
+            long result = input;
             while (result > 1)
             {
                 if (cache.Contains(result))
                 {
+                    
                     break;
                 }
                 result = Conjecture.calc(result);
