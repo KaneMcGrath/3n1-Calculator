@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -28,7 +29,7 @@ namespace Calculator
                 string[] command = input.ToLower().Split(' ');
 
                 
-                Int64 x = 0;
+                BigInteger x = 0;
 
                 if (command[0] == "range")
                 {
@@ -40,7 +41,7 @@ namespace Calculator
                             silent = true;
                         }
                     }
-                    Range(Int64.Parse(command[1]), Int64.Parse(command[2]), silent);
+                    Range(BigInteger.Parse(command[1]), BigInteger.Parse(command[2]), silent);
 
                 }
                 else if (command[0] == "crange")
@@ -53,32 +54,32 @@ namespace Calculator
                             silent = true;
                         }
                     }
-                    Crange(Int64.Parse(command[1]), Int64.Parse(command[2]), silent);
+                    Crange(BigInteger.Parse(command[1]), BigInteger.Parse(command[2]), silent);
 
                 }
                 else if (command[0] == "srange")
                 {
 
-                    sRange(Int64.Parse(command[1]), Int64.Parse(command[2]));
+                    sRange(BigInteger.Parse(command[1]), BigInteger.Parse(command[2]));
 
                 }
                 else if (command[0] == "qrange")
                 {
                     
-                    sRange(Int64.Parse(command[1]), Int64.Parse(command[2]), true);
+                    sRange(BigInteger.Parse(command[1]), BigInteger.Parse(command[2]), true);
 
                 }
                 else if (command[0] == "calc" || command[0] == "find" || command[0] == "calculate")
                 {
 
-                    calc(Int64.Parse(command[1]));
+                    calc(BigInteger.Parse(command[1]));
 
                 }
                 else if (command[0] == "help")
                 {
                     help();
                 }
-                else if (Int64.TryParse(input, out x))
+                else if (BigInteger.TryParse(input, out x))
                 {
                     calc(x);
                 }
@@ -117,12 +118,12 @@ namespace Calculator
             }
             c.l();
         }
-        static void calc(Int64 input)
+        static void calc(BigInteger input)
         {
 
-            Int64 result = input;
-            Int64 count = 0;
-            Int64 highest = 0;
+            BigInteger result = input;
+            BigInteger count = 0;
+            BigInteger highest = 0;
             c.w(result.ToString(), ConsoleColor.Yellow);
             c.w(",");
             while (result > 1)
@@ -134,7 +135,7 @@ namespace Calculator
                 if (result < 0)
                 {
                     c.e("Negative number " + result + " found after " + count + " steps.");
-                    c.e("Likely after reaching max int of " + Int64.MaxValue.ToString());
+                    
                 }
                 count++;
             }
@@ -150,17 +151,17 @@ namespace Calculator
             c.l();
         }
 
-        static void Range(Int64 low, Int64 high, bool silent = false)
+        static void Range(BigInteger low, BigInteger high, bool silent = false)
         {
             Int64 startTime = DateTime.Now.Ticks;
-            Int64[] highestStep = { 0, 0 };
-            Int64[] Int64estStep = { 0, 0 };
+            BigInteger[] highestStep = { 0, 0 };
+            BigInteger[] BigIntegerestStep = { 0, 0 };
 
-            for (Int64 i = low; i <= high; i++)
+            for (BigInteger i = low; i <= high; i++)
             {
-                Int64 result = i;
-                Int64 count = 0;
-                Int64 highest = 0;
+                BigInteger result = i;
+                BigInteger count = 0;
+                BigInteger highest = 0;
 
                 while (result > 1)
                 {
@@ -177,10 +178,10 @@ namespace Calculator
                     highestStep[0] = highest;
                     highestStep[1] = i;
                 }
-                if (count > Int64estStep[0])
+                if (count > BigIntegerestStep[0])
                 {
-                    Int64estStep[0] = count;
-                    Int64estStep[1] = i;
+                    BigIntegerestStep[0] = count;
+                    BigIntegerestStep[1] = i;
                 }
 
                 if (!silent)
@@ -205,10 +206,10 @@ namespace Calculator
             c.ww(elapsedSpan.ToString(), ConsoleColor.Yellow);
             
 
-            c.w("Int64est Step Count - [ ");
-            c.w(Int64estStep[1].ToString(), ConsoleColor.Green);
+            c.w("longest Step Count - [ ");
+            c.w(BigIntegerestStep[1].ToString(), ConsoleColor.Green);
             c.w(" ] with ");
-            c.w(Int64estStep[0].ToString(), ConsoleColor.Yellow);
+            c.w(BigIntegerestStep[0].ToString(), ConsoleColor.Yellow);
             c.ww(" steps!");
 
             c.w("Largest number - [ ");
@@ -219,10 +220,10 @@ namespace Calculator
 
         }
 
-        static void Crange(Int64 low, Int64 high, bool silent = false)
+        static void Crange(BigInteger low, BigInteger high, bool silent = false)
         {
             Int64 startTime = DateTime.Now.Ticks;
-            for (Int64 i = low; i <= high; i++)
+            for (BigInteger i = low; i <= high; i++)
             {
                 if (Conjecture.doesConverge(i))
                 {
@@ -245,31 +246,31 @@ namespace Calculator
 
         }
 
-        static void sRange(Int64 low, Int64 high, bool quiet = false)
+        static void sRange(BigInteger low, BigInteger high, bool quiet = false)
         {
-            Int64[] Int64estStep = { 0, 0 };
+            BigInteger[] BigIntegerestStep = { 0, 0 };
             Int64 startTime = DateTime.Now.Ticks;
             if (quiet)
             {
-                for (Int64 i = low; i <= high; i++)
+                for (BigInteger i = low; i <= high; i++)
                 {
-                    Int64 count = Conjecture.quietSteps(i);
-                    if (count > Int64estStep[0])
+                    BigInteger count = Conjecture.quietSteps(i);
+                    if (count > BigIntegerestStep[0])
                     {
-                        Int64estStep[0] = count;
-                        Int64estStep[1] = i;
+                        BigIntegerestStep[0] = count;
+                        BigIntegerestStep[1] = i;
                     }
                 }
             }
             else
             {
-                for (Int64 i = low; i <= high; i++)
+                for (BigInteger i = low; i <= high; i++)
                 {
-                    Int64 count = Conjecture.steps(i);
-                    if (count > Int64estStep[0])
+                    BigInteger count = Conjecture.steps(i);
+                    if (count > BigIntegerestStep[0])
                     {
-                        Int64estStep[0] = count;
-                        Int64estStep[1] = i;
+                        BigIntegerestStep[0] = count;
+                        BigIntegerestStep[1] = i;
                     }
                 }
 
@@ -284,25 +285,25 @@ namespace Calculator
             c.ww(" numbers");
             c.w("Time elapsed ");
             c.ww(elapsedSpan.ToString(), ConsoleColor.Yellow);
-            c.w("Int64est Step Count - [ ");
-            c.w(Int64estStep[1].ToString(), ConsoleColor.Green);
+            c.w("Longest Step Count - [ ");
+            c.w(BigIntegerestStep[1].ToString(), ConsoleColor.Green);
             c.w(" ] with ");
-            c.w(Int64estStep[0].ToString(), ConsoleColor.Yellow);
+            c.w(BigIntegerestStep[0].ToString(), ConsoleColor.Yellow);
             c.ww(" steps!");
         }
     }
 
     public static class Conjecture
     {
-        public static HashSet<Int64> cache = new HashSet<Int64>();
+        public static HashSet<BigInteger> cache = new HashSet<BigInteger>();
         public static Hashtable stepCache = new Hashtable();
 
-        public static Int64 steps(Int64 input)
+        public static BigInteger steps(BigInteger input)
         {
             c.l();
             c.ww(input.ToString(), ConsoleColor.Yellow);
-            Int64 result = input;
-            Int64 count = 0;
+            BigInteger result = input;
+            BigInteger count = 0;
             while (result > 1)
             {
                 c.w(count.ToString(),ConsoleColor.Green);
@@ -319,7 +320,7 @@ namespace Calculator
                     c.w(stepCache[result].ToString(), ConsoleColor.Cyan);
 
 
-                    count += (Int64)stepCache[result];
+                    count += (BigInteger)stepCache[result];
 
 
                     c.w(" for ", ConsoleColor.Magenta);
@@ -333,7 +334,7 @@ namespace Calculator
                 if (result < 0)
                 {
                     c.e("Negative number " + result + " found");
-                    c.e("Likely after reaching max int of " + Int64.MaxValue.ToString());
+                   
                     return 0;
                 }
                 
@@ -351,10 +352,10 @@ namespace Calculator
             return count;
         }
 
-        public static Int64 quietSteps(Int64 input)
+        public static BigInteger quietSteps(BigInteger input)
         {
-            Int64 result = input;
-            Int64 count = 0;
+            BigInteger result = input;
+            BigInteger count = 0;
             while (result > 1)
             {
                 
@@ -364,7 +365,7 @@ namespace Calculator
                    
 
 
-                    count += (Int64)stepCache[result];
+                    count += (BigInteger)stepCache[result];
 
 
                    
@@ -376,7 +377,7 @@ namespace Calculator
                 if (result < 0)
                 {
                     c.e("Negative number " + result + " found");
-                    c.e("Likely after reaching max int of " + Int64.MaxValue.ToString());
+                    
                     return 0;
                 }
 
@@ -390,9 +391,9 @@ namespace Calculator
             return count;
         }
 
-        public static bool doesConverge(Int64 input)
+        public static bool doesConverge(BigInteger input)
         {
-            Int64 result = input;
+            BigInteger result = input;
             while (result > 1)
             {
                 if (cache.Contains(result))
@@ -407,7 +408,7 @@ namespace Calculator
                 if (result < 0)
                 {
                     c.e("Negative number " + result + " found");
-                    c.e("Likely after reaching max int of " + Int64.MaxValue.ToString());
+                   
                     return false;
                 }
                 
@@ -415,7 +416,7 @@ namespace Calculator
             cache.Add(input);
             return true;
         }
-        public static Int64 calc(Int64 input)
+        public static BigInteger calc(BigInteger input)
         {
             
             return (input % 2 == 0) ? input / 2 : (3 * input) + 1;
